@@ -25,6 +25,7 @@ population = createPopulation(popSize=100)
 #Iterate through population and get fitness
 popFitness = {}
 for key, val in population.items():
+    observation, reward, done, debug = env.reset()
     done = False
     count = 0
     cumulativeReward = 0
@@ -36,12 +37,11 @@ for key, val in population.items():
         if stepCounter == 0:
             count += 1
             count = count % 11
-        observation, reward, done, debug = env.step(population[key][count])
         for arr in reward:
             for i in range(len(arr)):
                 if i != 0:
                     cumulativeReward += arr[i]
+        observation, reward, done, debug = env.step(population[key][count])
 
     popFitness[key] = cumulativeReward
     print(key + 'Finished, reward:' + str(cumulativeReward))
-    break
