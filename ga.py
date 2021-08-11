@@ -31,7 +31,6 @@ for key, val in population.items():
 
     stepCounter = 0
     while done == False:
-        print(stepCounter)
         stepCounter +=1
         stepCounter = stepCounter % 10
         if stepCounter == 0:
@@ -44,5 +43,5 @@ for key, val in population.items():
                     cumulativeReward += arr[i]
 
     popFitness[key] = cumulativeReward
-    print(key + 'Finished, reward:' + str(reward))
+    print(key + 'Finished, reward:' + str(cumulativeReward))
     break
