@@ -1,11 +1,12 @@
 import gym_cityflow
 import gym
 import random
+import time
 
 #Initialize Environment
 env = gym.make('gym_cityflow:cityflow-v0', 
                 configPath = 'data/4x4_config.json',
-                episodeSteps = 3600)
+                episodeSteps = 500)
 
 #initialise Population:
 def createPopulation(popSize):
@@ -23,25 +24,30 @@ def createPopulation(popSize):
 population = createPopulation(popSize=100)
 
 #Iterate through population and get fitness
+startTime = time.time()
 popFitness = {}
 for key, val in population.items():
-    observation, reward, done, debug = env.reset()
+    observation = env.reset()
     done = False
     count = 0
     cumulativeReward = 0
+    totalCount = 0
 
     stepCounter = 0
     while done == False:
+        totalCount += 1
         stepCounter +=1
         stepCounter = stepCounter % 10
         if stepCounter == 0:
             count += 1
             count = count % 11
+        observation, reward, done, debug = env.step(population[key][count])
         for arr in reward:
             for i in range(len(arr)):
                 if i != 0:
                     cumulativeReward += arr[i]
-        observation, reward, done, debug = env.step(population[key][count])
 
+    elapsedTime = time.time() - startTime
+    startTime = time.time()
     popFitness[key] = cumulativeReward
-    print(key + 'Finished, reward:' + str(cumulativeReward))
+    print(key + 'Finished, reward: ' + str(popFitness[key]) + ', Time Taken(s): ' + str(int(elapsedTime)))
