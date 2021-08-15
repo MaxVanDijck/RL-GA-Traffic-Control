@@ -2,11 +2,14 @@ import gym_cityflow
 import gym
 import random
 import time
+import json
 
 #Initialize Environment
+configPath = 'data/1x1_config.json'
+episodeSteps = 200
 env = gym.make('gym_cityflow:cityflow-v0', 
-                configPath = 'data/1x1_config.json',
-                episodeSteps = 200)
+                configPath = configPath,
+                episodeSteps = episodeSteps)
 
 #initialise Population:
 def createPopulation(popSize):
@@ -23,6 +26,16 @@ def createPopulation(popSize):
 
 population = createPopulation(popSize=100)
 
+def randomiseFlow(configPath, episodeSteps):
+    configDict = json.load(open(configPath))
+    flowDict = json.load(open(configDict['dir'] + configDict['flowFile']))
+    for i in range(len(flowDict)):
+        randNum = random.randint(0, episodeSteps)
+        flowDict[i]['startTime'] = randNum
+        flowDict[i]['endTime'] = randNum
+    json.dump(flowDict, open(configDict['dir'] + configDict['flowFile'], 'w'))
+
+
 #Iterate through population and get fitness
 startTime = time.time()
 popFitness = {}
@@ -32,10 +45,12 @@ numTests = 20
 for key, val in population.items():
     avgReward = 0
     for i in range(numTests):
-        #TODO: randomize flow file
+        #randomize flow file
+        randomiseFlow(configPath=configPath, episodeSteps=episodeSteps)
+
         env = gym.make('gym_cityflow:cityflow-v0', 
-                configPath = 'data/1x1_config.json',
-                episodeSteps = 200)
+                configPath = configPath,
+                episodeSteps = episodeSteps)
         observation = env.reset()
         done = False
         count = 0
