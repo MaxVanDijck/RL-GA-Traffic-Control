@@ -5,8 +5,8 @@ import time
 
 #Initialize Environment
 env = gym.make('gym_cityflow:cityflow-v0', 
-                configPath = 'data/4x4_config.json',
-                episodeSteps = 50)
+                configPath = 'data/1x1_config.json',
+                episodeSteps = 200)
 
 #initialise Population:
 def createPopulation(popSize):
@@ -32,6 +32,10 @@ numTests = 20
 for key, val in population.items():
     avgReward = 0
     for i in range(numTests):
+        #TODO: randomize flow file
+        env = gym.make('gym_cityflow:cityflow-v0', 
+                configPath = 'data/1x1_config.json',
+                episodeSteps = 200)
         observation = env.reset()
         done = False
         count = 0
@@ -52,6 +56,7 @@ for key, val in population.items():
                     if j != 0:
                         cumulativeReward += arr[j]
         avgReward += cumulativeReward
+        print(cumulativeReward)
     avgReward = avgReward / numTests
 
     elapsedTime = time.time() - startTime
