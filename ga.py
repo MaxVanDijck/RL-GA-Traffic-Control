@@ -120,9 +120,6 @@ def crossover(rewards, population):
 
             population[rewards[i][0]] = tempSolution1
             population[rewards[i+1][0]] = tempSolution2
-
-            break
-
             
     return population
 
