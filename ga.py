@@ -3,10 +3,11 @@ import gym
 import random
 import time
 import json
+import operator
 
 #Initialize Environment
 configPath = 'data/1x1_config.json'
-episodeSteps = 200
+episodeSteps = 100
 env = gym.make('gym_cityflow:cityflow-v0', 
                 configPath = configPath,
                 episodeSteps = episodeSteps)
@@ -42,39 +43,89 @@ popFitness = {}
 
 numTests = 20
 
-for key, val in population.items():
-    avgReward = 0
-    for i in range(numTests):
-        #randomize flow file
-        randomiseFlow(configPath=configPath, episodeSteps=episodeSteps)
-
-        env = gym.make('gym_cityflow:cityflow-v0', 
-                configPath = configPath,
-                episodeSteps = episodeSteps)
-        observation = env.reset()
-        done = False
-        count = 0
-        cumulativeReward = 0
-        totalCount = 0
-
-        stepCounter = 0
-        while done == False:
-            totalCount += 1
-            stepCounter +=1
-            stepCounter = stepCounter % 10
-            if stepCounter == 0:
-                count += 1
-                count = count % 11
-            observation, reward, done, debug = env.step(population[key][count])
-            for arr in reward:
-                for j in range(len(arr)):
-                    if j != 0:
-                        cumulativeReward += arr[j]
-        avgReward += cumulativeReward
-        print(cumulativeReward)
-    avgReward = avgReward / numTests
-
-    elapsedTime = time.time() - startTime
+def score():
     startTime = time.time()
-    popFitness[key] = avgReward
-    print(key + 'Finished, reward: ' + str(popFitness[key]) + ', Time Taken(s): ' + str(int(elapsedTime)))
+    popFitness = {}
+    numTests = 20
+    for key, val in population.items():
+        avgReward = 0
+        for i in range(numTests):
+            #randomize flow file
+            randomiseFlow(configPath=configPath, episodeSteps=episodeSteps)
+
+            env = gym.make('gym_cityflow:cityflow-v0', 
+                    configPath = configPath,
+                    episodeSteps = episodeSteps)
+            observation = env.reset()
+            done = False
+            count = 0
+            cumulativeReward = 0
+            totalCount = 0
+
+            stepCounter = 0
+            while done == False:
+                totalCount += 1
+                stepCounter +=1
+                stepCounter = stepCounter % 10
+                if stepCounter == 0:
+                    count += 1
+                    count = count % 11
+                observation, reward, done, debug = env.step(population[key][count])
+                for arr in reward:
+                    for j in range(len(arr)):
+                        if j != 0:
+                            cumulativeReward += arr[j]
+            avgReward += cumulativeReward
+        avgReward = avgReward / numTests
+
+        elapsedTime = time.time() - startTime
+        startTime = time.time()
+        popFitness[key] = avgReward
+        print(key + 'Finished, reward: ' + str(popFitness[key]) + ', Time Taken(s): ' + str(int(elapsedTime)))
+
+    sortedFitness = sorted(popFitness.items(), key=operator.itemgetter(1))
+    return sortedFitness
+
+def crossover(rewards, population):
+    for i in range(len(rewards)):
+        if i % 2 == 0:
+            solution1 = population[rewards[i][0]]
+            solution2 = population[rewards[i+1][0]]
+
+            crossoverPoint1 = random.randint(0, len(solution1))
+
+            while True:
+                crossoverPoint2 = random.randint(0, len(solution2))
+                if crossoverPoint2 != crossoverPoint1:
+                    break
+
+            if crossoverPoint1 > crossoverPoint2:
+                temp = crossoverPoint1
+                crossoverPoint1 = crossoverPoint2
+                crossoverPoint2 = temp
+
+            tempSolution1 = []
+            tempSolution2 = []
+            
+            for j in range(len(solution1)):
+                if j < crossoverPoint1:
+                    tempSolution1.append(solution1[j])
+                    tempSolution2.append(solution2[j])
+                elif j >= crossoverPoint1 and j <= crossoverPoint2:
+                    tempSolution1.append(solution2[j])
+                    tempSolution2.append(solution1[j])
+                else:
+                    tempSolution1.append(solution1[j])
+                    tempSolution2.append(solution2[j])
+
+            population[rewards[i][0]] = tempSolution1
+            population[rewards[i+1][0]] = tempSolution2
+
+            break
+
+            
+    return population
+
+for i in range(10):
+    sortedFitness = score()
+    population = crossover(rewards=sortedFitness, population=population)
