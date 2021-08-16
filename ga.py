@@ -7,7 +7,7 @@ import operator
 
 #Initialize Environment
 configPath = 'data/1x1_config.json'
-episodeSteps = 100
+episodeSteps = 3600
 env = gym.make('gym_cityflow:cityflow-v0', 
                 configPath = configPath,
                 episodeSteps = episodeSteps)
@@ -125,4 +125,6 @@ def crossover(rewards, population):
 
 for i in range(10):
     sortedFitness = score()
+    print(sortedFitness)
+    print(sortedFitness[-1][1])
     population = crossover(rewards=sortedFitness, population=population)
