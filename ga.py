@@ -123,8 +123,26 @@ def crossover(rewards, population):
             
     return population
 
+def mutate(rewards, population, mutations, mutateRatio):
+    for i in range(len(int(rewards * mutateRatio))):
+        solution = population[rewards[i][0]]
+        for j in range(mutations):
+            index = random.randint(0, len(solution))
+            solution[index] = random.randint(0, env.action_space.nvec[index]-1)
+
+        population[rewards[i][0]] = solution
+
+    return population
+
+def savePop(population):
+    json.dump(population, open('population.json', 'w'))
+
+def openPop():
+    return json.load(open('population.json'))
+
 for i in range(10):
     sortedFitness = score()
     print(sortedFitness)
-    print(sortedFitness[-1][1])
+    savePop(population)
     population = crossover(rewards=sortedFitness, population=population)
+    population = mutate(rewards=sortedFitness, population=population, mutations=1, mutateRatio=0.5)
