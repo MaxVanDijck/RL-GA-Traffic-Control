@@ -128,7 +128,7 @@ def mutate(rewards, population, mutations, mutateRatio):
         solution = population[rewards[i][0]]
         for j in range(mutations):
             index = random.randint(0, len(solution))
-            solution[index] = random.randint(0, env.action_space.nvec[index]-1)
+            solution[index] = [random.randint(0, env.action_space.nvec[index]-1)]
 
         population[rewards[i][0]] = solution
 
