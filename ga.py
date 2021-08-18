@@ -7,7 +7,7 @@ import operator
 
 #Initialize Environment
 configPath = 'data/1x1_config.json'
-episodeSteps = 3600
+episodeSteps = 36
 env = gym.make('gym_cityflow:cityflow-v0', 
                 configPath = configPath,
                 episodeSteps = episodeSteps)
@@ -25,7 +25,7 @@ def createPopulation(popSize):
         population['solution' + str(i)] = solution
     return population
 
-population = createPopulation(popSize=100)
+population = createPopulation(popSize=10)
 
 def randomiseFlow(configPath, episodeSteps):
     configDict = json.load(open(configPath))
@@ -127,8 +127,8 @@ def mutate(rewards, population, mutations, mutateRatio):
     for i in range(int(len(rewards) * mutateRatio)):
         solution = population[rewards[i][0]]
         for j in range(mutations):
-            index = random.randint(0, len(solution))
-            solution[index] = [random.randint(0, env.action_space.nvec[index]-1)]
+            position = random.randint(0, len(solution)-1)
+            solution[position] = [random.randint(0, env.action_space.nvec[0]-1)]
 
         population[rewards[i][0]] = solution
 
