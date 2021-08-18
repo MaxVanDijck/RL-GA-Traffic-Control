@@ -124,7 +124,7 @@ def crossover(rewards, population):
     return population
 
 def mutate(rewards, population, mutations, mutateRatio):
-    for i in range(len(int(rewards * mutateRatio))):
+    for i in range(int(len(rewards) * mutateRatio)):
         solution = population[rewards[i][0]]
         for j in range(mutations):
             index = random.randint(0, len(solution))
