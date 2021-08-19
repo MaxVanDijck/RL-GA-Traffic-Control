@@ -140,6 +140,8 @@ def savePop(population):
 def openPop():
     return json.load(open('population.json'))
 
+population = openPop()
+
 for i in range(10):
     sortedFitness = score()
     print(sortedFitness)
