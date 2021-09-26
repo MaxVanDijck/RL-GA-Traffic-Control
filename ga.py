@@ -25,8 +25,6 @@ def createPopulation(popSize):
         population['solution' + str(i)] = solution
     return population
 
-population = createPopulation(popSize=100)
-
 def randomiseFlow(configPath, episodeSteps):
     configDict = json.load(open(configPath))
     flowDict = json.load(open(configDict['dir'] + configDict['flowFile']))
@@ -43,7 +41,7 @@ popFitness = {}
 
 numTests = 20
 
-def score():
+def score(population, nonExp=False):
     startTime = time.time()
     popFitness = {}
     numTests = 20
@@ -71,6 +69,8 @@ def score():
                     count += 1
                     count = count % 11
                 observation, reward, done, debug = env.step(population[key][count])
+                if nonExp:
+                    reward = env.getReward_nonExp()
                 for arr in reward:
                     for j in range(len(arr)):
                         if j != 0:
@@ -134,17 +134,37 @@ def mutate(rewards, population, mutations, mutateRatio):
 
     return population
 
-def savePop(population):
-    json.dump(population, open('population.json', 'w'))
+def savePop(population, path):
+    json.dump(population, open(path, 'w'))
 
 def openPop():
     return json.load(open('population.json'))
 
-population = openPop()
 
-for i in range(10):
-    sortedFitness = score()
-    print(sortedFitness)
-    savePop(population)
-    population = crossover(rewards=sortedFitness, population=population)
-    population = mutate(rewards=sortedFitness, population=population, mutations=1, mutateRatio=0.5)
+populationExp = createPopulation(popSize=100)
+populationNonExp = createPopulation(popSize=100)
+
+
+for i in range(100):
+    print('Scoring Populations')
+    print('Exp Scoring')
+    sortedFitnessExp = score(populationExp)
+    print('Non-Exp Scoring')
+    sortedFitnessNonExp = score(populationNonExp, nonExp=True)
+    print('Starting Comparison Run (Exp Reward Population evaluated with Non-Exp reward)')
+    comparisonFitness = score(populationExp, nonExp=True)
+    print('Exponential Reward Sorted Fitness')
+    print(sortedFitnessExp)
+    print('Non Exponential Reward Sorted Fitness')
+    print(sortedFitnessNonExp)
+    print('Saving Populations')
+    savePop(populationExp, 'popExp{}.json'.format(i))
+    savePop(populationNonExp, 'popNonExp{}.json'.format(i))
+
+    print('Population Crossover')
+    populationExp = crossover(rewards=sortedFitnessExp, population=populationExp)
+    populationNonExp = crossover(rewards=sortedFitnessNonExp, population=populationNonExp)
+
+    print('Mutating Population')
+    populationExp = mutate(rewards=sortedFitnessExp, population=populationExp, mutations=1, mutateRatio=0.5)
+    populationNonExp = mutate(rewards=sortedFitnessNonExp, population=populationNonExp, mutations=1, mutateRatio=0.5)
