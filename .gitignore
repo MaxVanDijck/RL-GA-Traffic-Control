@@ -2,3 +2,5 @@
 data/replayLog.txt
 data/roadnetLog.json
 data/1x1_flow.json
+*.json
+*.csv
